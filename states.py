@@ -15,4 +15,8 @@ class ServicesForm(StatesGroup):
     checking_service = State()
 
 
-main_menu = [RoomsForm.menu, ServicesForm.menu]
+class FeedbackForm(StatesGroup):
+    menu = State()
+
+
+main_menu = [RoomsForm.menu, ServicesForm.menu, FeedbackForm.menu]

@@ -18,7 +18,8 @@ async def cmd_start(message: types.Message):
                     content_types=types.ContentTypes.TEXT)
 async def process_menu(message: types.Message, state: FSMContext):
     await MainForm.menu.set()
-    await message.answer('выберите номер или ознакомьтесь с нашей зоной отдыха', reply_markup=main_menu_keyboard)
+    await message.answer('выберите номер или ознакомьтесь с нашей зоной отдыха',
+                         reply_markup=main_menu_keyboard)
 
 
 @dp.message_handler(lambda message: message.text not in menu_buttons, state=MainForm.menu)

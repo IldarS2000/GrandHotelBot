@@ -21,3 +21,7 @@ add_buttons_to_keyboard(services_keyboard, services_buttons)
 
 keyboard_with_back_button = types.ReplyKeyboardMarkup(resize_keyboard=True)
 keyboard_with_back_button.add('Назад')
+
+feedback_keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+feedback_buttons = ['Главное меню']
+add_buttons_to_keyboard(feedback_keyboard, feedback_buttons)
