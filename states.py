@@ -7,7 +7,17 @@ class MainForm(StatesGroup):
 
 class RoomsForm(StatesGroup):
     menu = State()
-    booking_room = State()
+    getting_arrival_date = State()
+    getting_departure_date = State()
+    counting_humans = State()
+    accepting_data1 = State()
+    choosing_type_of_room = State()
+    choosing_specific_room = State()
+    booking_specific_room = State()
+
+    getting_name = State()
+    getting_phone_number = State()
+    accepting_data2 = State()
 
 
 class ServicesForm(StatesGroup):
@@ -19,4 +29,4 @@ class FeedbackForm(StatesGroup):
     menu = State()
 
 
-main_menu = [RoomsForm.menu, ServicesForm.menu, FeedbackForm.menu]
+main_menu = [RoomsForm.getting_arrival_date, ServicesForm.menu, FeedbackForm.menu]
