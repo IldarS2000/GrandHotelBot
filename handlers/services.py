@@ -1,12 +1,11 @@
 from aiogram import types
-from aiogram.dispatcher import FSMContext
 
 from bot import dp
 from states import MainForm, ServicesForm
-from keyboards import services_keyboard, services_buttons, keyboard_with_back_button
+from keyboards import back_to_main_menu_keyboard, keyboard_with_back_button, services_button, back_button
 
 
-@dp.message_handler(lambda message: message.text in ['Ознакомиться с зоной отдыха', 'Назад'],
+@dp.message_handler(lambda message: message.text in services_button + back_button,
                     state=[MainForm.menu, ServicesForm.checking_service],
                     content_types=types.ContentTypes.TEXT)
 async def process_services_button(message: types.Message):
@@ -14,7 +13,7 @@ async def process_services_button(message: types.Message):
     await message.answer('Введите порядковое число услуги, которую хотите рассмотреть, например "1"\n'
                          '1. баня\n'
                          '2. ресторан\n'
-                         '3. бильярд\n', reply_markup=services_keyboard)
+                         '3. бильярд\n', reply_markup=back_to_main_menu_keyboard)
 
 
 def filter_service_number(message: types.Message):

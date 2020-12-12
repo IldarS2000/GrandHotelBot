@@ -1,9 +1,8 @@
 from aiogram import types
-from aiogram.dispatcher import FSMContext
 
 from bot import dp
 from states import MainForm, FeedbackForm
-from keyboards import feedback_keyboard, feedback_buttons
+from keyboards import back_to_main_menu_keyboard
 
 
 @dp.message_handler(lambda message: message.text in 'Обратная связь',
@@ -12,7 +11,7 @@ from keyboards import feedback_keyboard, feedback_buttons
 async def process_feedback(message: types.Message):
     await FeedbackForm.menu.set()
     await message.answer('напишите отзыв или предложение мы обязательно его рассмотрим',
-                         reply_markup=feedback_keyboard)
+                         reply_markup=back_to_main_menu_keyboard)
 
 
 @dp.message_handler(state=FeedbackForm.menu, content_types=types.ContentTypes.TEXT)

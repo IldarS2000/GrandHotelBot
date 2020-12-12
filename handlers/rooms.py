@@ -1,7 +1,6 @@
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 import re
-import os
 
 from database import booking
 
@@ -26,7 +25,7 @@ def is_date(date):
 async def choose_arrival_date(message: types.Message):
     await RoomsForm.getting_arrival_date.set()
     await message.answer(
-        'Введите дату заезда в следующем формате: "DD.MM.YYYY" без кавычек, пример: "25.05.2020" без кавычек',
+        'Введите дату заезда в следующем формате: "DD.MM.YYYY" без кавычек, пример: "25.05.2020"',
         reply_markup=types.ReplyKeyboardRemove())
 
 
@@ -64,19 +63,21 @@ async def accept_data(message: types.Message, state: FSMContext):
                          reply_markup=accept_data_keyboard)
 
 
-@dp.message_handler(lambda message: message.text in back_button + accept_data_button,
-                    state=[RoomsForm.accepting_data1, RoomsForm.choosing_specific_room],
+@dp.message_handler(lambda message: message.text in back_button + accept_data_button + back_to_choosing_room_button,
+                    state=[RoomsForm.accepting_data1, RoomsForm.choosing_specific_room,
+                           RoomsForm.booking_specific_room],
                     content_types=types.ContentTypes.TEXT)
 async def choose_type_of_room(message: types.Message):
     await RoomsForm.choosing_type_of_room.set()
     await message.answer('Выберите тип номера', reply_markup=type_of_rooms_keyboard)
 
 
-@dp.message_handler(lambda message: message.text in type_of_rooms_buttons + back_to_choosing_room_button,
-                    state=[RoomsForm.choosing_type_of_room, RoomsForm.booking_specific_room],
+@dp.message_handler(lambda message: message.text in type_of_rooms_buttons,
+                    state=RoomsForm.choosing_type_of_room,
                     content_types=types.ContentTypes.TEXT)
 async def choose_specific_room(message: types.Message, state: FSMContext):
     await RoomsForm.choosing_specific_room.set()
+
     await state.update_data(room_type=message.text)
 
     user_data = await state.get_data()

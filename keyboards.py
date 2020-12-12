@@ -30,14 +30,7 @@ accept_data_keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
 add_buttons_to_keyboard(accept_data_keyboard, accept_data_button + change_data_button)
 
 # КЛАВИАТУРЫ ДОПОЛНИТЕЛЬНЫХ УСЛУГ
-services_keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-services_buttons = ['Главное меню']
-add_buttons_to_keyboard(services_keyboard, services_buttons)
-
 # КЛАВИАТУРЫ ДЛЯ ФИДБЕКА
-feedback_keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-feedback_buttons = ['Главное меню']
-add_buttons_to_keyboard(feedback_keyboard, feedback_buttons)
 
 # ОБЩИЕ КНОПКИ
 back_to_main_menu_keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
