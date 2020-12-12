@@ -1,8 +1,11 @@
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 import re
+import os
 
-from bot import dp
+from database import booking
+
+from bot import dp, bot
 from states import MainForm, RoomsForm, main_menu
 from keyboards import keyboard_with_back_button, back_button, \
     type_of_rooms_keyboard, type_of_rooms_buttons, \
@@ -22,8 +25,9 @@ def is_date(date):
                     content_types=types.ContentTypes.TEXT)
 async def choose_arrival_date(message: types.Message):
     await RoomsForm.getting_arrival_date.set()
-    await message.answer('Введите дату заезда в следующем формате: "DD.MM.YYYY" без кавычек, пример: "25.05.2020" без кавычек',
-                         reply_markup=types.ReplyKeyboardRemove())
+    await message.answer(
+        'Введите дату заезда в следующем формате: "DD.MM.YYYY" без кавычек, пример: "25.05.2020" без кавычек',
+        reply_markup=types.ReplyKeyboardRemove())
 
 
 @dp.message_handler(lambda message: is_date(message.text),
@@ -74,7 +78,23 @@ async def choose_type_of_room(message: types.Message):
 async def choose_specific_room(message: types.Message, state: FSMContext):
     await RoomsForm.choosing_specific_room.set()
     await state.update_data(room_type=message.text)
-    await message.answer('Выберите номер комнаты', reply_markup=keyboard_with_back_button)
+
+    user_data = await state.get_data()
+    room_type = user_data['room_type']
+    count = user_data['humans_count']
+    arrival_date = user_data['arrival_date']
+    departure_date = user_data['departure_date']
+
+    rooms = booking.vacant_room(room_type, count, arrival_date, departure_date)
+
+    if not rooms:
+        await message.answer('К сожалению нет подходящих комнат', reply_markup=keyboard_with_back_button)
+    else:
+        answer = ''
+        for room in rooms:
+            answer += f'{room[0]}, цена: {room[1]}, количество кроватей: {room[2]}\n'
+        await message.answer(answer)
+        await message.answer('Выберите номер комнаты', reply_markup=keyboard_with_back_button)
 
 
 @dp.message_handler(lambda message: message.text.isdigit(),
@@ -83,6 +103,18 @@ async def choose_specific_room(message: types.Message, state: FSMContext):
 async def book_room(message: types.Message, state: FSMContext):
     await RoomsForm.booking_specific_room.set()
     await state.update_data(booked_room=message.text)
+
+    user_data = await state.get_data()
+    room_number = user_data['booked_room']
+    description = booking.description(room_number)[0][0]
+
+    room_type = user_data['room_type']
+
+    rooms = {'Президентский': 'prezident', 'Люкс': 'lux', 'Стандарт': 'standart'}
+    img = open(f'images/rooms/{rooms[room_type]}/photo.jpg', 'rb')
+
+    await message.answer(description)
+    await bot.send_photo(message.chat.id, img)
     await message.answer('Можете забронировать номер или перейти обратно к списку номеров',
                          reply_markup=book_room_keyboard)
 
@@ -122,8 +154,19 @@ async def accept_data(message: types.Message, state: FSMContext):
 @dp.message_handler(lambda message: message.text in accept_data_button,
                     state=RoomsForm.accepting_data2,
                     content_types=types.ContentTypes.TEXT)
-async def back_to_main_menu(message: types.Message):
+async def back_to_main_menu(message: types.Message, state: FSMContext):
     await main_menu[0].set()
+
+    user_data = await state.get_data()
+    room_number = user_data['booked_room']
+    arrival_date = user_data['arrival_date']
+    departure_date = user_data['departure_date']
+    name = user_data['name']
+    phone = user_data['phone_number']
+    count = user_data['humans_count']
+
+    booking.reserve(room_number, arrival_date, departure_date, name, phone, count)
+
     await message.answer('Номер зарезирвирован, сейчас с вами свяжется наш агент\n'
                          'пока вы можете перейти в главное меню',
                          reply_markup=back_to_main_menu_keyboard)
