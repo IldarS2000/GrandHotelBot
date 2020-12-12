@@ -22,7 +22,7 @@ def is_date(date):
                     content_types=types.ContentTypes.TEXT)
 async def choose_arrival_date(message: types.Message):
     await RoomsForm.getting_arrival_date.set()
-    await message.answer('Введите дату заезда как в следующем примере: "25.05.20"',
+    await message.answer('Введите дату заезда в следующем формате: "DD.MM.YYYY" без кавычек, пример: "25.05.2020" без кавычек',
                          reply_markup=types.ReplyKeyboardRemove())
 
 
@@ -32,7 +32,7 @@ async def choose_arrival_date(message: types.Message):
 async def choose_date_of_departure(message: types.Message, state: FSMContext):
     await RoomsForm.getting_departure_date.set()
     await state.update_data(arrival_date=message.text)
-    await message.answer('Введите дату отъезда как в следующем примере: "03.06.20"')
+    await message.answer('Введите дату отъезда в следующем формате: "DD.MM.YYYY" без кавычек, пример: "25.05.2020"')
 
 
 @dp.message_handler(lambda message: is_date(message.text),
@@ -41,7 +41,7 @@ async def choose_date_of_departure(message: types.Message, state: FSMContext):
 async def choose_count_of_humans(message: types.Message, state: FSMContext):
     await RoomsForm.counting_humans.set()
     await state.update_data(departure_date=message.text)
-    await message.answer('Введите сколько человек заедет в номер')
+    await message.answer('Введите количество людей')
 
 
 @dp.message_handler(lambda message: message.text.isdigit(),
@@ -74,7 +74,7 @@ async def choose_type_of_room(message: types.Message):
 async def choose_specific_room(message: types.Message, state: FSMContext):
     await RoomsForm.choosing_specific_room.set()
     await state.update_data(room_type=message.text)
-    await message.answer('Выберите комнату по её номеру', reply_markup=keyboard_with_back_button)
+    await message.answer('Выберите номер комнаты', reply_markup=keyboard_with_back_button)
 
 
 @dp.message_handler(lambda message: message.text.isdigit(),
@@ -83,7 +83,7 @@ async def choose_specific_room(message: types.Message, state: FSMContext):
 async def book_room(message: types.Message, state: FSMContext):
     await RoomsForm.booking_specific_room.set()
     await state.update_data(booked_room=message.text)
-    await message.answer('Можете забронировать номер, или перейти обратно к списку номеров',
+    await message.answer('Можете забронировать номер или перейти обратно к списку номеров',
                          reply_markup=book_room_keyboard)
 
 
@@ -92,7 +92,7 @@ async def book_room(message: types.Message, state: FSMContext):
                     content_types=types.ContentTypes.TEXT)
 async def get_name(message: types.Message):
     await RoomsForm.getting_name.set()
-    await message.answer('Введите имя по которому можно к вам обращаться',
+    await message.answer('Введите ваше имя',
                          reply_markup=types.ReplyKeyboardRemove())
 
 
