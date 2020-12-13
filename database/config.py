@@ -1,5 +1,7 @@
+import os
+
 database = 'hotel'
 user = 'postgres'
-password = 'kekwmek1'
+password = os.environ['POSTGRES_PASSWORD']
 host = 'localhost'
 port = '5432'
