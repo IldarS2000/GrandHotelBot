@@ -118,6 +118,10 @@ def least_booked_month(lim):
     connection_pool.putconn(con)
     return result
 
+
+def staticstics():
+    pass
+
 if __name__ == '__main__':
     vac = least_booked_month(5)
     print(vac)
