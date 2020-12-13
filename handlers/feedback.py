@@ -2,6 +2,7 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 
 from bot import dp
+from database import queries
 from states import MainForm, FeedbackForm
 from keyboards import back_to_main_menu_keyboard, feedback_button
 
@@ -41,6 +42,8 @@ async def write_feedback(message: types.Message, state: FSMContext):
     user_data = await state.get_data()
     estimation = user_data['estimation']
     feedback = message.text
+
+    queries.upload_feedback(estimation, feedback)
 
     await message.answer('спасибо!\n'
                          'теперь вы можете перейти в главное меню', reply_markup=back_to_main_menu_keyboard)
