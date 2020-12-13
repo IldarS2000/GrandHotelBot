@@ -16,7 +16,7 @@ source env/bin/activate
 python -m pip install -r requirements.txt
 ```
 after those steps add value of your `token` to environment variable with name `TOKEN_VMK_BOT`,
-and add server's info for postgres connection
+and add server's info for postgres connection in database/config.py
 
 ----
 ### Contributing
