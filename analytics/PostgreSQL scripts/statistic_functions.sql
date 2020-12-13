@@ -293,7 +293,7 @@ $$;
 /*
  самый нагруженный по броням месяц
  */
-create or replace function most_booked_month(m_c int)
+create or replace function most_F_month(m_c int)
     returns table
             (
     month  double precision,
