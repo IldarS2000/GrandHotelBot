@@ -1,9 +1,9 @@
-from aiogram import types
-from aiogram.dispatcher import FSMContext
 import re
 
-from database import booking
+from aiogram import types
+from aiogram.dispatcher import FSMContext
 
+from database import booking
 from bot import dp, bot
 from states import MainForm, RoomsForm, main_menu
 from keyboards import keyboard_with_back_button, back_button, \
@@ -17,6 +17,10 @@ from keyboards import keyboard_with_back_button, back_button, \
 
 def is_date(date):
     return re.match(r'^(3[01]|[12][0-9]|0?[1-9])\.(1[0-2]|0?[1-9])\.(?:[0-9]{2})?[0-9]{2}$', date)
+
+
+def is_phone_humber(number):
+    return re.match(r'^\+?\d+$', number)
 
 
 @dp.message_handler(lambda message: message.text in book_room_button + change_data_button,
@@ -36,6 +40,12 @@ async def choose_date_of_departure(message: types.Message, state: FSMContext):
     await RoomsForm.getting_departure_date.set()
     await state.update_data(arrival_date=message.text)
     await message.answer('Введите дату отъезда в следующем формате: "DD.MM.YYYY" без кавычек, пример: "25.05.2020"')
+
+
+@dp.message_handler(lambda message: not is_date(message.text),
+                    state=[RoomsForm.getting_arrival_date, RoomsForm.getting_departure_date])
+async def choose_date_invalid(message: types.Message):
+    await message.reply('введен не корректный формат даты')
 
 
 @dp.message_handler(lambda message: is_date(message.text),
@@ -138,7 +148,15 @@ async def get_phone_number(message: types.Message, state: FSMContext):
         'Введите мобильный номер по которому оператор сможет с вами связаться и подтвердить бронирование')
 
 
-@dp.message_handler(state=RoomsForm.getting_phone_number,
+@dp.message_handler(lambda message: not is_phone_humber(message.text),
+                    state=RoomsForm.getting_phone_number,
+                    content_types=types.ContentTypes.TEXT)
+async def get_phone_number_invalid(message: types.Message):
+    await message.reply('некорректный формат номера телефона')
+
+
+@dp.message_handler(lambda message: is_phone_humber(message.text),
+                    state=RoomsForm.getting_phone_number,
                     content_types=types.ContentTypes.TEXT)
 async def accept_data(message: types.Message, state: FSMContext):
     await RoomsForm.accepting_data2.set()
@@ -171,21 +189,3 @@ async def back_to_main_menu(message: types.Message, state: FSMContext):
     await message.answer('Номер зарезирвирован, сейчас с вами свяжется наш агент\n'
                          'пока вы можете перейти в главное меню',
                          reply_markup=back_to_main_menu_keyboard)
-
-# def filter_room_number(message: types.Message):
-
-#     if message.text.isdigit():
-#         if 1 <= int(message.text) <= 3:
-#             return True
-#     return False
-#
-#
-# @dp.message_handler(lambda message: not filter_room_number(message), state=RoomsForm.menu)
-# async def book_room_invalid(message: types.Message):
-#     await message.reply('введен не существующий номер, попробуйте снова')
-#
-#
-# @dp.message_handler(filter_room_number, state=RoomsForm.menu)
-# async def book_room(message: types.Message):
-#     await RoomsForm.booking_room.set()
-#     await message.reply('отличный выбор!', reply_markup=keyboard_with_back_button)
