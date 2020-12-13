@@ -1,5 +1,5 @@
 /*
- наименее популярные комнаты
+ наиболее популярные комнаты
  */
 
 
@@ -23,7 +23,7 @@ $$;
 
 
 /*
- наиболее популярные комнаты
+ наименее популярные комнаты
  */
 
 create or replace function less_vacant_room(m_c int)
@@ -152,7 +152,7 @@ begin
                         from z1
                                  join hotel_rooms on hotel_rooms.room_number = z1.room_number
                         group by z1.room_number,hotel_rooms.price_per_day)
-            select z2.room_number, z2.count*z2.price_per_day f from z2 order by f limit mc;
+            select z2.room_number, z2.count*z2.price_per_day f from z2 order by f limit m_c;
 
 end;
 $$;
@@ -309,6 +309,28 @@ begin
         from reservations
         group by s
         order by count desc
+        limit m_c;
+
+
+end;
+$$;
+
+create or replace function least_booked_month(m_c int)
+    returns table
+            (
+    month  double precision,
+    bookings    bigint
+            )
+    language 'plpgsql'
+
+as
+$$
+begin
+    return query
+        select extract(month from date_of_arrival) s, count(*) count
+        from reservations
+        group by s
+        order by count
         limit m_c;
 
 
