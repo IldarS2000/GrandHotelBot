@@ -1,4 +1,5 @@
 import re
+import datetime
 
 from aiogram import types
 from aiogram.dispatcher import FSMContext
@@ -12,19 +13,21 @@ from keyboards import keyboard_with_back_button, back_button, \
     accept_data_keyboard, accept_data_button, change_data_button, \
     back_to_main_menu_keyboard, \
     back_to_choosing_room_button, \
-    book_room_button
+    book_room_button, \
+    change_parameters_button
 
 
 def is_date(date):
-    return re.match(r'^(3[01]|[12][0-9]|0?[1-9])\.(1[0-2]|0?[1-9])\.(?:[0-9]{2})?[0-9]{2}$', date)
+    return re.match(r'^(3[01]|[12][0-9]|0?[1-9])\.(1[0-2]|0?[1-9])\.(?:[0-9]{2})[0-9]{2}$', date)
 
 
 def is_phone_humber(number):
     return re.match(r'^\+?\d+$', number)
 
 
-@dp.message_handler(lambda message: message.text in book_room_button + change_data_button,
-                    state=[MainForm.menu, RoomsForm.accepting_data1],
+@dp.message_handler(lambda message: message.text in book_room_button + change_data_button + change_parameters_button,
+                    state=[MainForm.menu, RoomsForm.accepting_data1, RoomsForm.choosing_specific_room,
+                           RoomsForm.choosing_type_of_room],
                     content_types=types.ContentTypes.TEXT)
 async def choose_arrival_date(message: types.Message):
     await RoomsForm.getting_arrival_date.set()
@@ -33,10 +36,18 @@ async def choose_arrival_date(message: types.Message):
         reply_markup=types.ReplyKeyboardRemove())
 
 
+def is_valid_date(date):
+    return datetime.date.today() <= datetime.datetime.strptime(date, '%d.%m.%Y').date()
+
+
 @dp.message_handler(lambda message: is_date(message.text),
                     state=RoomsForm.getting_arrival_date,
                     content_types=types.ContentTypes.TEXT)
 async def choose_date_of_departure(message: types.Message, state: FSMContext):
+    if not is_valid_date(message.text):
+        await message.reply('некорректная дата, введенная дата меньше текущей')
+        return
+
     await RoomsForm.getting_departure_date.set()
     await state.update_data(arrival_date=message.text)
     await message.answer('Введите дату отъезда в следующем формате: "DD.MM.YYYY" без кавычек, пример: "25.05.2020"')
@@ -48,10 +59,20 @@ async def choose_date_invalid(message: types.Message):
     await message.reply('введен не корректный формат даты')
 
 
+def is_valid_staying_date(arrival_date, departure_date):
+    return datetime.datetime.strptime(arrival_date, '%d.%m.%Y').date() < \
+           datetime.datetime.strptime(departure_date, '%d.%m.%Y').date()
+
+
 @dp.message_handler(lambda message: is_date(message.text),
                     state=RoomsForm.getting_departure_date,
                     content_types=types.ContentTypes.TEXT)
 async def choose_count_of_humans(message: types.Message, state: FSMContext):
+    user_data = await state.get_data()
+    if not is_valid_staying_date(user_data['arrival_date'], message.text):
+        await message.reply('некорректная дата, дата заезда больше даты выезда')
+        return
+
     await RoomsForm.counting_humans.set()
     await state.update_data(departure_date=message.text)
     await message.answer('Введите количество людей')
@@ -96,7 +117,7 @@ async def choose_specific_room(message: types.Message, state: FSMContext):
     arrival_date = user_data['arrival_date']
     departure_date = user_data['departure_date']
 
-    rooms = queries.vacant_room(room_type, count, arrival_date, departure_date)
+    rooms = queries.unload_vacant_rooms(room_type, count, arrival_date, departure_date)
 
     rooms_numbers = [room[0] for room in rooms]
     await state.update_data(rooms_numbers=rooms_numbers)
@@ -129,7 +150,7 @@ async def book_room(message: types.Message, state: FSMContext):
 
     user_data = await state.get_data()
     room_number = user_data['booked_room']
-    description = queries.description(room_number)
+    description = queries.unload_description(room_number)
 
     room_type = user_data['room_type']
 
@@ -196,7 +217,7 @@ async def back_to_main_menu(message: types.Message, state: FSMContext):
     phone = user_data['phone_number']
     count = user_data['humans_count']
 
-    queries.reserve(room_number, arrival_date, departure_date, name, phone, count)
+    queries.upload_reserve(room_number, arrival_date, departure_date, name, phone, count)
 
     await message.answer('Номер зарезирвирован, сейчас с вами свяжется наш агент\n'
                          'пока вы можете перейти в главное меню',
