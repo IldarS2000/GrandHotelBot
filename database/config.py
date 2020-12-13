@@ -1,0 +1,5 @@
+database = 'hotel'
+user = 'postgres'
+password = 'kekwmek1'
+host = 'localhost'
+port = '5432'
