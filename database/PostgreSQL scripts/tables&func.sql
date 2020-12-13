@@ -27,7 +27,7 @@ create table feedback
 );
 
 
-create or replace function vacant_room(type_of_room varchar(10), count int, arrival_date date, departure_date date)
+create or replace function vacant_room(type_of_room varchar(15), count int, arrival_date date, departure_date date)
     returns table
             (
                 room_number   int,
