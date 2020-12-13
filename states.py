@@ -27,6 +27,7 @@ class ServicesForm(StatesGroup):
 
 class FeedbackForm(StatesGroup):
     menu = State()
+    getting_feedback = State()
 
 
 main_menu = [RoomsForm.getting_arrival_date, ServicesForm.menu, FeedbackForm.menu]
