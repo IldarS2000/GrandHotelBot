@@ -21,9 +21,9 @@ create table reservations
 
 create table feedback
 (
-    id serial primary key ,
-    rating int check ( rating > 0 and rating <= 5 ) not null,
-    comment text not null
+    id      serial primary key,
+    rating  int check ( rating > 0 and rating <= 5 ) not null,
+    comment text                                     not null
 );
 
 
@@ -44,9 +44,13 @@ begin
                  left join reservations r on h.room_number = r.room_number
         where h.type = type_of_room
           and count <= h.max_people
-          and (not ((arrival_date <= r.date_of_departure and arrival_date >= r.date_of_arrival) or
-                    (departure_date <= r.date_of_departure and departure_date >= r.date_of_arrival)) or
-               r.date_of_arrival is null)
+          and h.room_number not in (select r2.room_number
+                                    from reservations r2
+                                    where ((r2.date_of_arrival <= arrival_date and arrival_date <= r2.date_of_departure)
+                                        or (r2.date_of_arrival <= departure_date and
+                                            departure_date <= r2.date_of_departure))
+                                       or (arrival_date <= r2.date_of_arrival and
+                                           r2.date_of_departure <= departure_date))
         order by h.room_number;
-end;
+end
 $$;
