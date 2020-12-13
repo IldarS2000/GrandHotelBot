@@ -39,3 +39,14 @@ accept_data_button = ['Подтвердить данные']
 change_data_button = ['Изменить данные']
 accept_data_keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
 add_buttons_to_keyboard(accept_data_keyboard, accept_data_button + change_data_button)
+
+# КНОПКИ ДЛЯ ФИДБЕКА
+button1 = types.KeyboardButton('1')
+button2 = types.KeyboardButton('2')
+button3 = types.KeyboardButton('3')
+button4 = types.KeyboardButton('4')
+button5 = types.KeyboardButton('5')
+
+estimations_keyboard = types.ReplyKeyboardMarkup().row(
+    button1, button2, button3, button4, button5
+).add('Главное меню')
