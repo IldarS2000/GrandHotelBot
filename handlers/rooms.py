@@ -3,7 +3,7 @@ import re
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 
-from database import booking
+from database import queries
 from bot import dp, bot
 from states import MainForm, RoomsForm, main_menu
 from keyboards import keyboard_with_back_button, back_button, \
@@ -96,7 +96,7 @@ async def choose_specific_room(message: types.Message, state: FSMContext):
     arrival_date = user_data['arrival_date']
     departure_date = user_data['departure_date']
 
-    rooms = booking.vacant_room(room_type, count, arrival_date, departure_date)
+    rooms = queries.vacant_room(room_type, count, arrival_date, departure_date)
 
     if not rooms:
         await message.answer('К сожалению нет подходящих комнат', reply_markup=keyboard_with_back_button)
@@ -117,7 +117,7 @@ async def book_room(message: types.Message, state: FSMContext):
 
     user_data = await state.get_data()
     room_number = user_data['booked_room']
-    description = booking.description(room_number)[0][0]
+    description = queries.description(room_number)
 
     room_type = user_data['room_type']
 
@@ -184,7 +184,7 @@ async def back_to_main_menu(message: types.Message, state: FSMContext):
     phone = user_data['phone_number']
     count = user_data['humans_count']
 
-    booking.reserve(room_number, arrival_date, departure_date, name, phone, count)
+    queries.reserve(room_number, arrival_date, departure_date, name, phone, count)
 
     await message.answer('Номер зарезирвирован, сейчас с вами свяжется наш агент\n'
                          'пока вы можете перейти в главное меню',
