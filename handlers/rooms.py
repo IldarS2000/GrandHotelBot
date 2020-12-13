@@ -98,6 +98,9 @@ async def choose_specific_room(message: types.Message, state: FSMContext):
 
     rooms = queries.vacant_room(room_type, count, arrival_date, departure_date)
 
+    rooms_numbers = [room[0] for room in rooms]
+    await state.update_data(rooms_numbers=rooms_numbers)
+
     if not rooms:
         await message.answer('К сожалению нет подходящих комнат', reply_markup=keyboard_with_back_button)
     else:
@@ -108,10 +111,19 @@ async def choose_specific_room(message: types.Message, state: FSMContext):
         await message.answer('Выберите номер комнаты', reply_markup=keyboard_with_back_button)
 
 
+def room_number_filter(number, numbers):
+    return number in numbers
+
+
 @dp.message_handler(lambda message: message.text.isdigit(),
                     state=RoomsForm.choosing_specific_room,
                     content_types=types.ContentTypes.TEXT)
 async def book_room(message: types.Message, state: FSMContext):
+    user_data = await state.get_data()
+    if not room_number_filter(int(message.text), user_data['rooms_numbers']):
+        await message.reply('неверный номер комнаты, попробуйте снова')
+        return
+
     await RoomsForm.booking_specific_room.set()
     await state.update_data(booked_room=message.text)
 
