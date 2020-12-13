@@ -4,7 +4,7 @@ from aiogram.dispatcher import FSMContext
 from bot import dp
 from database import queries
 from states import MainForm, FeedbackForm
-from keyboards import back_to_main_menu_keyboard, feedback_button
+from keyboards import back_to_main_menu_keyboard, feedback_button, estimations_keyboard
 
 
 @dp.message_handler(lambda message: message.text in feedback_button,
@@ -14,7 +14,7 @@ async def process_feedback(message: types.Message):
     await FeedbackForm.menu.set()
     await message.answer('оцените нас, мы будем очень рады!\n'
                          'поставьте оценку от 1 до 5',
-                         reply_markup=back_to_main_menu_keyboard)
+                         reply_markup=estimations_keyboard)
 
 
 def filter_estimation(message: types.Message):
