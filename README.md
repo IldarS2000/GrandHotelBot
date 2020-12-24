@@ -23,5 +23,6 @@ and add server's info for postgres connection in database/config.py
 
 Pull requests are welcome!
 
+### Main menu of bot
 
 ![alt text](https://github.com/Karantir73/GrandHotelBot/blob/master/image.png)
