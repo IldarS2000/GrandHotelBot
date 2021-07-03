@@ -19,9 +19,6 @@ after those steps add value of your `token` to environment variable with name `T
 and add server's info for postgres connection in database/config.py
 
 ----
-### Contributing
-
-Pull requests are welcome!
 
 ### Main menu of bot
 
