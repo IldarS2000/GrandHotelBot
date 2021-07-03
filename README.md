@@ -2,7 +2,7 @@
 
 ### Features of bot
 
-With help of this bot you can book room in imaginary hotel, see other services of hotel and write feedback
+With help of this bot you can book room in imaginary hotel, see other services of hotel and write feedback, **for more detaild check Telegram Bot Presentation.pptx**
 
 ----
 ### Installation
